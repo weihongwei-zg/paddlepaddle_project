@@ -175,27 +175,30 @@ def train(model):
 
     # 预测结果:
     model.eval()
-    test_data = load_test()  # 获取测试集
-    # 将numpy.ndarray转化成Tensor
-    img = fluid.dygraph.to_variable(test_data)
-    # 计算模型输出
-    logits = model(img)
-    # 输出softmax层结果，得到图片分类
-    predict = fluid.layers.softmax(logits).numpy()
-    # 将预测结果最大值下标作为分类结果对应0-9
-
-    label = []
-    for i in range(predict.shape[0]):
-        label.append([i + 1, np.argmax(predict[i])])
+    # 获取测试集
     # 将结果写入LeNet.csv文件
     lenet = open("LeNet.csv", "w")
     lenet.write("ImageId,Label\n")
-    for pred in label:
-        id, y = pred[0], pred[1]
-        lenet.write(str(id) + "," + str(y) + "\n")
+    ids = 0
+    for _, test_data in enumerate(load_test(batch_size=1000)):
+        # 将numpy.ndarray转化成Tensor
+        img = fluid.dygraph.to_variable(test_data)
+        # 计算模型输出
+        logits = model(img)
+        # 输出softmax层结果，得到图片分类
+        predict = fluid.layers.softmax(logits).numpy()
+        # 将预测结果最大值下标作为分类结果对应0-9
+
+        label = []
+        for i in range(predict.shape[0]):
+            ids = ids+1
+            label.append([ids, np.argmax(predict[i])])
+
+        for pred in label:
+            id, y = pred[0], pred[1]
+            lenet.write(str(id) + "," + str(y) + "\n")
     # 保存模型参数
     fluid.save_dygraph(model.state_dict(), 'mnist_LeNet')
-
 
 if __name__ == '__main__':
     # 创建模型
