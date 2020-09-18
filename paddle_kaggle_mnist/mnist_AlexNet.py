@@ -141,96 +141,98 @@ class AlexNet(fluid.dygraph.Layer):
         x = self.fc3(x)
         return x
 
-    # 定义训练过程
-    def train(model):
-        print('start training ... ')
-        model.train()
-        epoch_num = 1
-        batch_size = 10
-        # 定义学习率，并加载优化器参数到模型中
-        total_steps = (int(42000 // batch_size) + 1) * epoch_num
-        lr = fluid.dygraph.PolynomialDecay(0.001, total_steps, 0.0001)
+# 定义训练过程
+def train(model):
+    print('start training ... ')
+    model.train()
+    epoch_num = 10
+    batch_size = 10
+    # 定义学习率，并加载优化器参数到模型中
+    total_steps = (int(42000 // batch_size) + 1) * epoch_num
+    lr = fluid.dygraph.PolynomialDecay(0.001, total_steps, 0.0001)
 
-        opt = fluid.optimizer.Momentum(learning_rate=lr, momentum=0.9, parameter_list=model.parameters())
+    opt = fluid.optimizer.Momentum(learning_rate=lr, momentum=0.9, parameter_list=model.parameters())
 
-        for epoch in range(epoch_num):
-            for batch_id, data in enumerate(load_dataset(batch_size)):
-                # 读入数据
-                x_data, y_data = data
-                # 将numpy.ndarray转化成Tensor
-                img = fluid.dygraph.to_variable(x_data)
-                label = fluid.dygraph.to_variable(y_data)
-                # 计算模型输出
-                logits = model(img)
-                # 计算损失函数
-                loss = fluid.layers.softmax_with_cross_entropy(logits, label)
-                avg_loss = fluid.layers.mean(loss)
-                if batch_id % 1000 == 0:
-                    print("epoch: {}, batch_id: {}, loss is: {}".format(epoch, batch_id, avg_loss.numpy()))
-                # 更新梯度
-                avg_loss.backward()
-                opt.minimize(avg_loss)
-                # 清除梯度
-                model.clear_gradients()
-
-                # 在训练集上的评估结果
-            model.eval()
-            accuracies = []
-            losses = []
-            for batch_id, data in enumerate(load_dataset(batch_size)):
-                # 调整输入数据形状和类型
-                x_data, y_data = data
-
-                # 将numpy.ndarray转化成Tensor
-                img = fluid.dygraph.to_variable(x_data)
-                label = fluid.dygraph.to_variable(y_data)
-                # 计算模型输出
-                logits = model(img)
-                pred = fluid.layers.softmax(logits)
-                # 计算损失函数
-                loss = fluid.layers.softmax_with_cross_entropy(logits, label)
-                acc = fluid.layers.accuracy(pred, label)
-                accuracies.append(acc.numpy())
-                losses.append(loss.numpy())
-            print("[train] accuracy/loss: {}/{}".format(np.mean(accuracies), np.mean(losses)))
-            model.train()
-
-        # 预测结果:
-        model.eval()
-        # 获取测试集
-        # 将结果写入LeNet.csv文件
-        lenet = open("AlexNet.csv", "w")
-        lenet.write("ImageId,Label\n")
-        for id, test_data in enumerate(load_test(batch_size=1000)):
+    for epoch in range(epoch_num):
+        for batch_id, data in enumerate(load_dataset(batch_size)):
+            # 读入数据
+            x_data, y_data = data
             # 将numpy.ndarray转化成Tensor
-            img = fluid.dygraph.to_variable(test_data)
+            img = fluid.dygraph.to_variable(x_data)
+            label = fluid.dygraph.to_variable(y_data)
             # 计算模型输出
             logits = model(img)
-            # 输出softmax层结果，得到图片分类
-            predict = fluid.layers.softmax(logits).numpy()
-            # 将预测结果最大值下标作为分类结果对应0-9
+            # 计算损失函数
+            loss = fluid.layers.softmax_with_cross_entropy(logits, label)
+            avg_loss = fluid.layers.mean(loss)
+            if batch_id % 1000 == 0:
+                print("epoch: {}, batch_id: {}, loss is: {}".format(epoch, batch_id, avg_loss.numpy()))
+            # 更新梯度
+            avg_loss.backward()
+            opt.minimize(avg_loss)
+            # 清除梯度
+            model.clear_gradients()
 
-            label = []
-            for i in range(predict.shape[0]):
-                label.append([i + 1, np.argmax(predict[i])])
+            # 在训练集上的评估结果
+        model.eval()
+        accuracies = []
+        losses = []
+        for batch_id, data in enumerate(load_dataset(batch_size)):
+            # 调整输入数据形状和类型
+            x_data, y_data = data
 
-            for pred in label:
-                id, y = pred[0], pred[1]
-                lenet.write(str(id) + "," + str(y) + "\n")
-        # 保存模型参数
-        fluid.save_dygraph(model.state_dict(), 'mnist_LeNet')
+            # 将numpy.ndarray转化成Tensor
+            img = fluid.dygraph.to_variable(x_data)
+            label = fluid.dygraph.to_variable(y_data)
+            # 计算模型输出
+            logits = model(img)
+            pred = fluid.layers.softmax(logits)
+            # 计算损失函数
+            loss = fluid.layers.softmax_with_cross_entropy(logits, label)
+            acc = fluid.layers.accuracy(pred, label)
+            accuracies.append(acc.numpy())
+            losses.append(loss.numpy())
+        print("[train] accuracy/loss: {}/{}".format(np.mean(accuracies), np.mean(losses)))
+        model.train()
 
-    if __name__ == '__main__':
-        # 创建模型
-        # 是否使用gpu
-        use_gpu = True  # 确认使用gpu
-        place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace
-        with fluid.dygraph.guard(place):
-            """
-            model = LeNet(num_classes=10)
-            #启动训练过程
-            train(model)
+    # 预测结果:
+    model.eval()
+    # 获取测试集
+    # 将结果写入LeNet.csv文件
+    lenet = open("AlexNet.csv", "w")
+    lenet.write("ImageId,Label\n")
+    ids = 0
+    for _, test_data in enumerate(load_test(batch_size=1000)):
+        # 将numpy.ndarray转化成Tensor
+        img = fluid.dygraph.to_variable(test_data)
+        # 计算模型输出
+        logits = model(img)
+        # 输出softmax层结果，得到图片分类
+        predict = fluid.layers.softmax(logits).numpy()
+        # 将预测结果最大值下标作为分类结果对应0-9
 
-            """
-            model = AlexNet(num_classes=10)
-            train(model)
+        label = []
+        for i in range(predict.shape[0]):
+            ids = ids+1
+            label.append([ids, np.argmax(predict[i])])
+
+        for pred in label:
+            id, y = pred[0], pred[1]
+            lenet.write(str(id) + "," + str(y) + "\n")
+    # 保存模型参数
+    fluid.save_dygraph(model.state_dict(), 'mnist_AlexNet')
+
+if __name__ == '__main__':
+    # 创建模型
+    # 是否使用gpu
+    use_gpu = True  # 确认使用gpu
+    place = fluid.CUDAPlace(0) if use_gpu else fluid.CPUPlace
+    with fluid.dygraph.guard(place):
+        """
+        model = LeNet(num_classes=10)
+        #启动训练过程
+        train(model)
+
+        """
+        model = AlexNet(num_classes=10)
+        train(model)
