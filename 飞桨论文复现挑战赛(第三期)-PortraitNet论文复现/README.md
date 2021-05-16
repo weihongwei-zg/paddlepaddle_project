@@ -1,5 +1,7 @@
 # PortraitNet论文复现
 
+AI Studio 项目连接：https://aistudio.baidu.com/aistudio/projectdetail/1759729
+
 - EG1800数据集
   - 原论文精度为：96.62%
   - 我达到的精度为：96.634%
