@@ -1,0 +1,16 @@
+# paddlepaddle_project
+使用paddlepaddle完成的一些项目
+
+1.中石油 · 第二届梦想云创新大赛决赛队伍方案：https://aistudio.baidu.com/aistudio/projectdetail/1242737?shared=1
+
+2.常规赛：点击反欺诈预测分享：https://aistudio.baidu.com/aistudio/projectdetail/1206845?shared=1
+
+3.中文场景文字识别挑战赛分享：https://aistudio.baidu.com/aistudio/projectdetail/1136775?shared=1
+
+4.飞桨论文复现挑战赛（第三期）-PortraitNet论文复现：https://github.com/wobushihuair/paddlepaddle2.0-PortraitNet
+
+5.2021广东工业智造创新大赛Baseline(PaddlePaddle)2021广东工业智造创新大赛Baseline(PaddlePaddle)：https://aistudio.baidu.com/aistudio/projectdetail/1420200?shared=1
+
+6.广东电网智慧现场作业挑战赛：识别高空作业及安全带佩戴Baseline(非官方)：https://aistudio.baidu.com/aistudio/projectdetail/2027459?shared=1
+
+7.智能优化算法：https://aistudio.baidu.com/aistudio/projectdetail/1664013?shared=1
