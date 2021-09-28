@@ -17,4 +17,5 @@
 
 8.智能优化算法：https://aistudio.baidu.com/aistudio/projectdetail/1664013?shared=1
 
+9.用python的numpy实现mnist手写数字识别：https://blog.csdn.net/weixin_43668325/article/details/103200814
 
