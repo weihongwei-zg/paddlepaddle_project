@@ -14,3 +14,5 @@
 6.广东电网智慧现场作业挑战赛：识别高空作业及安全带佩戴Baseline(非官方)：https://aistudio.baidu.com/aistudio/projectdetail/2027459?shared=1
 
 7.智能优化算法：https://aistudio.baidu.com/aistudio/projectdetail/1664013?shared=1
+
+8.阿里云天池2021广东电网智慧现场作业挑战赛：识别高空作业及安全带佩戴季军方案：https://aistudio.baidu.com/aistudio/projectdetail/2385958?shared=1
